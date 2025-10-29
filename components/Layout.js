@@ -192,16 +192,15 @@ function Footer() {
             <p className="text-gray-400 mb-4 text-sm">
               Get the latest updates on new providers and features.
             </p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="Your email"
-                                  className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary transition-colors"
-              />
-              <button className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg transition-colors">
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </div>
+         <div className="flex flex-wrap gap-2 md:flex-col lg:flex-row overflow-hidden"> {/* Added flex-wrap and overflow-hidden */}
+  <input
+    type="email"
+    placeholder="Your email"
+    className="flex-1  bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary transition-colors "/>
+  <button className="flex-shrink-0 bg-orange-500 hover:bg-orange-600 px-3 py-2 rounded-lg transition-colors min-w-[40px]"> {/* Added flex-shrink-0 and min-w-[40px] for button stability, slimmer px-3 */}
+    <ArrowRight className="w-4 h-4 mx-auto" /> {/* Slightly smaller icon, centered */}
+  </button>
+</div>
           </div>
         </div>
 

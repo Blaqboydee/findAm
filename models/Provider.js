@@ -28,6 +28,16 @@ const ProviderSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide a description'],
   },
+    // NEW: Profile/Logo Image
+  profileImage: {
+    type: String,
+    default: null, // URL from Cloudinary
+  },
+  // NEW: Work Samples (2-3 images)
+  workImages: {
+    type: [String],
+    default: [], // Array of URLs from Cloudinary
+  },
   rating: {
     average: { type: Number, default: 0 },
     count: { type: Number, default: 0 },

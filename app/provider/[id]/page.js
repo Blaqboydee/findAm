@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Star, MapPin, Phone, Mail, MessageCircle, Shield, CheckCircle, Calendar, Wrench, Scissors, Zap, Palette, Hammer, Camera, Car, Home, Paintbrush, Wind, ChefHat, Settings, Snowflake, PartyPopper } from 'lucide-react'
+import { ArrowLeft, Star, MapPin, Phone, Mail, MessageCircle, Shield, CheckCircle, Calendar, Wrench, Scissors, Zap, Palette, Hammer, Camera, Car, Home, Paintbrush, Wind, ChefHat, Settings, Snowflake, PartyPopper, ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 // Icon mapping for services
 const serviceIcons = {
@@ -44,6 +44,9 @@ export default function ProviderProfilePage() {
   const [provider, setProvider] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxImage, setLightboxImage] = useState(null)
 
   // Animate sections with staggered delays
   const contentVisible = useAnimateOnMount(100)
@@ -76,6 +79,24 @@ export default function ProviderProfilePage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleNextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % (provider.workImages?.length || 1))
+  }
+
+  const handlePrevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + (provider.workImages?.length || 1)) % (provider.workImages?.length || 1))
+  }
+
+  const openLightbox = (imageUrl) => {
+    setLightboxImage(imageUrl)
+    setLightboxOpen(true)
+  }
+
+  const closeLightbox = () => {
+    setLightboxOpen(false)
+    setLightboxImage(null)
   }
 
   // Loading state
@@ -117,9 +138,29 @@ export default function ProviderProfilePage() {
   }
 
   const ServiceIcon = serviceIcons[provider.serviceType] || Wrench
+  const hasWorkImages = provider.workImages && provider.workImages.length > 0
 
   return (
     <div className="min-h-screen bg-neutral-50">
+      {/* Lightbox Modal */}
+      {lightboxOpen && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+          <div className="relative max-w-4xl max-h-full w-full h-full flex items-center justify-center">
+            <button
+              onClick={closeLightbox}
+              className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 rounded-full p-2 text-white transition-all z-10"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <img
+              src={lightboxImage}
+              alt="Full size work sample"
+              className="max-w-full max-h-full object-contain"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-primary to-primary-dark text-white py-16 md:py-20 overflow-hidden">
         {/* Animated background */}
@@ -140,40 +181,48 @@ export default function ProviderProfilePage() {
             </button>
 
             {/* Provider Header */}
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8">
-              {/* Provider Icon */}
-              <div className="relative">
-                <div className="bg-white rounded-3xl p-8 md:p-10 shadow-2xl">
-                  <ServiceIcon className="w-15 h-15 md:w-24 md:h-24 text-primary" />
-                </div>
+            <div className="flex flex-row items-center justify-between gap-4 md:gap-8 w-full">
+              {/* Provider Image/Icon */}
+              <div className="relative flex-shrink-0">
+                {provider.profileImage ? (
+                  <img
+                    src={provider.profileImage}
+                    alt={`${provider.name} profile`}
+                    className="w-20 h-20 md:w-32 md:h-32 rounded-full object-cover shadow-2xl border-4 border-white"
+                  />
+                ) : (
+                  <div className="bg-white rounded-3xl p-4 md:p-8 shadow-2xl flex-shrink-0">
+                    <ServiceIcon className="w-8 h-8 md:w-15 md:h-15 text-primary" />
+                  </div>
+                )}
                 {provider.verified && (
-                  <div className="absolute -bottom-2 -right-2 bg-accent rounded-full p-2 shadow-lg">
-                    <CheckCircle className="w-6 h-6 text-white" />
+                  <div className="absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 bg-accent rounded-full p-1 md:p-2 shadow-lg">
+                    <CheckCircle className="w-4 h-4 md:w-6 md:h-6 text-white" />
                   </div>
                 )}
               </div>
 
               {/* Provider Info */}
-              <div className="flex-1 text-center md:text-left">
-                <h1 className="text-xl md:text-4xl font-bold mb-3">
+              <div className="flex-1 text-center md:text-left min-w-0 px-2 md:px-0">
+                <h1 className="text-lg md:text-4xl font-bold mb-3 truncate">
                   {provider.name}
                 </h1>
-                <p className="text-sm md:text-xl text-neutral-100 mb-6 font-medium">
+                <p className="text-xs md:text-xl text-neutral-100 mb-4 md:mb-6 font-medium">
                   {provider.serviceType}
                 </p>
-                <div className="flex flex-wrap gap-4 md:gap-6 justify-center md:justify-start">
-                  <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                    <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                    <span className="font-bold text-sm">
+                <div className="flex flex-wrap gap-2 md:gap-4 justify-center md:justify-start">
+                  <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-2 rounded-full">
+                    <Star className="w-4 h-4 md:w-5 md:h-5 text-yellow-400 fill-yellow-400" />
+                    <span className="font-bold text-xs md:text-sm">
                       {provider.rating?.average?.toFixed(1) || '0.0'}
                     </span>
-                    <span className="text-sm text-neutral-200">
+                    <span className="text-xs md:text-sm text-neutral-200">
                       ({provider.rating?.count || 0})
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                    <MapPin className="w-5 h-5" />
-                    <span className="text-sm font-medium">{provider.location}</span>
+                  <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-2 rounded-full">
+                    <MapPin className="w-4 h-4 md:w-5 md:h-5" />
+                    <span className="text-xs md:text-sm font-medium truncate">{provider.location}</span>
                   </div>
                   {/* {provider.verified && (
                     <div className="flex items-center gap-2 bg-accent px-4 py-2 rounded-full shadow-lg">
@@ -215,6 +264,70 @@ export default function ProviderProfilePage() {
                     {provider.description || 'No description available for this provider.'}
                   </p>
                 </div>
+
+                {/* Work Samples Section */}
+                {hasWorkImages && (
+                  <div 
+                    className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-2 border-transparent hover:border-primary-light transition-all duration-300"
+                    style={{
+                      transform: contentVisible ? 'translateY(0)' : 'translateY(30px)',
+                      opacity: contentVisible ? 1 : 0,
+                      transition: 'all 0.6s ease-out 0.05s'
+                    }}
+                  >
+                    <h2 className="text-xl md:text-2xl font-bold text-neutral-900 mb-6 flex items-center gap-3">
+                      <div className="w-10 h-10 bg-primary-light/20 rounded-xl flex items-center justify-center">
+                        <Camera className="w-5 h-5 text-primary" />
+                      </div>
+                      Work Samples
+                    </h2>
+                    <div className="relative">
+                      {/* Carousel Image */}
+                      <img
+                        src={provider.workImages[currentSlide]}
+                        alt={`Work sample ${currentSlide + 1}`}
+                        className="w-full h-64 md:h-80 object-cover rounded-xl shadow-md cursor-pointer"
+                        onClick={() => openLightbox(provider.workImages[currentSlide])}
+                      />
+                      
+                      {/* Navigation Buttons */}
+                      {provider.workImages.length > 1 && (
+                        <>
+                          <button
+                            onClick={handlePrevSlide}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-all"
+                          >
+                            <ChevronLeft className="w-6 h-6" />
+                          </button>
+                          <button
+                            onClick={handleNextSlide}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-all"
+                          >
+                            <ChevronRight className="w-6 h-6" />
+                          </button>
+                        </>
+                      )}
+
+                      {/* Indicators */}
+                      {provider.workImages.length > 1 && (
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                          {provider.workImages.map((_, index) => (
+                            <button
+                              key={index}
+                              onClick={() => setCurrentSlide(index)}
+                              className={`w-3 h-3 rounded-full transition-all ${
+                                index === currentSlide ? 'bg-white' : 'bg-white/50'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-center text-neutral-600 mt-4 text-sm">
+                      {currentSlide + 1} of {provider.workImages.length}
+                    </p>
+                  </div>
+                )}
 
                 {/* Services/Details Section */}
                 <div 

@@ -9,7 +9,16 @@ export async function POST(request) {
 
     // Get form data
     const body = await request.json()
-    const { name, email, phone, serviceType, location, description } = body
+    const { 
+      name, 
+      email, 
+      phone, 
+      serviceType, 
+      location, 
+      description,
+      profileImage,    // NEW
+      workImages       // NEW
+    } = body
 
     // Validate required fields
     if (!name || !email || !phone || !serviceType || !location || !description) {
@@ -36,6 +45,8 @@ export async function POST(request) {
       serviceType,
       location,
       description,
+      profileImage: profileImage || null,        
+      workImages: workImages || [],              
     })
 
     return NextResponse.json(

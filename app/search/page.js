@@ -236,9 +236,17 @@ export default function SearchPage() {
                       <div className="absolute bottom-0 left-0 w-32 h-32 bg-secondary rounded-full blur-3xl opacity-20"></div>
                       
                       <div className="relative">
-                        <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                          <ServiceIcon className="w-10 h-10 text-white" />
-                        </div>
+                        {provider.profileImage ? (
+                          <img
+                            src={provider.profileImage}
+                            alt={provider.name}
+                            className="w-20 h-20 rounded-full object-cover mx-auto mb-4 group-hover:scale-110 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <ServiceIcon className="w-10 h-10 text-white" />
+                          </div>
+                        )}
                         <h3 className="text-xl md:text-2xl font-bold text-white mb-1">{provider.name}</h3>
                         <p className="text-neutral-100 font-medium">{provider.serviceType}</p>
                       </div>

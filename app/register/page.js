@@ -43,11 +43,63 @@ export default function RegisterPage() {
     description: '',
   })
 
+  const [profileImage, setProfileImage] = useState(null)
+  const [profileImagePreview, setProfileImagePreview] = useState(null)
+  
+  const [workImages, setWorkImages] = useState([])
+  const [workImagesPreviews, setWorkImagesPreviews] = useState([])
+  
+  const [uploading, setUploading] = useState(false)
+
+
   const [submitted, setSubmitted] = useState(false)
   
   const [benefitsRef, benefitsInView] = useInView(0.2)
   const [formRef, formInView] = useInView(0.1)
   const [ctaRef, ctaInView] = useInView(0.2)
+
+
+  // Handle profile image selection
+  const handleProfileImageChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setProfileImage(file)
+      setProfileImagePreview(URL.createObjectURL(file))
+    }
+  }
+
+  // Handle work images selection (max 3)
+  const handleWorkImagesChange = (e) => {
+    const files = Array.from(e.target.files)
+    if (workImages.length + files.length > 3) {
+      alert('You can only upload up to 3 work samples')
+      return
+    }
+
+       const newWorkImages = [...workImages, ...files]
+    const newPreviews = files.map(file => URL.createObjectURL(file))
+
+    setWorkImages(newWorkImages)
+    setWorkImagesPreviews([...workImagesPreviews, ...newPreviews])
+  }
+
+  // Remove work image
+  const removeWorkImage = (index) => {
+    const newWorkImages = workImages.filter((_, i) => i !== index)
+    const newPreviews = workImagesPreviews.filter((_, i) => i !== index)
+    setWorkImages(newWorkImages)
+    setWorkImagesPreviews(newPreviews)
+  }
+
+
+
+
+
+
+
+
+
+
 
   const handleChange = (e) => {
     setFormData({
@@ -56,16 +108,54 @@ export default function RegisterPage() {
     })
   }
 
+    // Upload single image to Cloudinary
+  const uploadImage = async (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    })
+
+    const data = await response.json()
+    if (data.success) {
+      return data.url
+    } else {
+      throw new Error('Upload failed')
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setUploading(true)
+
     
     try {
+      let profileImageUrl = null
+      let workImagesUrls = []
+
+      // Upload profile image if exists
+      if (profileImage) {
+        profileImageUrl = await uploadImage(profileImage)
+      }
+
+      // Upload work images if exist
+      if (workImages.length > 0) {
+        const uploadPromises = workImages.map(img => uploadImage(img))
+        workImagesUrls = await Promise.all(uploadPromises)
+      }
+      const submissionData = {
+        ...formData,
+        profileImage: profileImageUrl,
+        workImages: workImagesUrls,
+      }
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submissionData),
       })
 
       const result = await response.json()
@@ -84,6 +174,10 @@ export default function RegisterPage() {
             location: '',
             description: '',
           })
+          setProfileImage(null)
+          setProfileImagePreview(null)
+          setWorkImages([])
+          setWorkImagesPreviews([])
         }, 3000)
       } else {
         alert(result.error || 'Registration failed. Please try again.')
@@ -91,6 +185,8 @@ export default function RegisterPage() {
     } catch (error) {
       console.error('Registration error:', error)
       alert('Something went wrong. Please try again.')
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -260,6 +356,76 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
+                   {/* Profile/Logo Image */}
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-800 mb-2">
+                      Profile Picture/Business Logo
+                    </label>
+                    <div className="flex items-center gap-4">
+                      {profileImagePreview && (
+                        <img
+                          src={profileImagePreview}
+                          alt="Profile preview"
+                          className="w-24 h-24 rounded-full object-cover border-2 border-primary"
+                        />
+                      )}
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleProfileImageChange}
+                          className="w-full px-4 py-3 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-neutral-900 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white file:cursor-pointer hover:file:bg-primary-dark"
+                        />
+                        <p className="text-sm text-neutral-600 mt-1">
+                          Recommended: Square image, at least 400x400px
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Work Samples Images */}
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-800 mb-2">
+                      Work Samples (Up to 3 images)
+                    </label>
+                    
+                    {/* Image Previews */}
+                    {workImagesPreviews.length > 0 && (
+                      <div className="grid grid-cols-3 gap-4 mb-4">
+                        {workImagesPreviews.map((preview, index) => (
+                          <div key={index} className="relative">
+                            <img
+                              src={preview}
+                              alt={`Work sample ${index + 1}`}
+                              className="w-full h-32 object-cover rounded-lg border-2 border-neutral-200"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeWorkImage(index)}
+                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Upload Button */}
+                    {workImages.length < 3 && (
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleWorkImagesChange}
+                        className="w-full px-4 py-3 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-neutral-900 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-secondary file:text-white file:cursor-pointer hover:file:bg-secondary-dark"
+                      />
+                    )}
+                    <p className="text-sm text-neutral-600 mt-1">
+                      Upload photos of your previous work to build trust with customers
+                    </p>
+                  </div>
+
                   {/* Email */}
                   <div>
                     <label className="block text-sm font-semibold text-neutral-800 mb-2">
@@ -370,9 +536,10 @@ export default function RegisterPage() {
                   {/* Submit Button */}
                   <button
                     type="submit"
-                    className="w-full bg-secondary text-white px-8 py-4 rounded-xl font-bold hover:bg-secondary-dark transition-all duration-300 text-sm md:text-lg shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2"
+                    disabled={uploading}
+                    className="w-full bg-secondary text-white px-8 py-4 rounded-xl font-bold hover:bg-secondary-dark transition-all duration-300 text-sm md:text-lg shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
-                    Register Now - It's Free
+                    {uploading ? 'Uploading Images...' : 'Register Now - It\'s Free'}
                     <ArrowRight className="w-5 h-5" />
                   </button>
 
