@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, ArrowRight, CheckCircle2, Scissors, Wrench, Zap, Palette, Hammer, Camera, Car, Home, Users, Star, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
+import RegisterButton from '../components/RegisterButton';
 
 // Framer Motion-style animation hook
 function useInView(threshold = 0.1) {
@@ -136,11 +137,7 @@ export default function HomePage() {
                 Search Providers
                 <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link
-              href="/register"
-             className="w-full text-sm sm:w-auto group bg-white text-primary px-6 md:px-8 py-3 md:py-4 rounded-xl font-semibold hover:bg-neutral-100 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105  md:text-lg">
-                List Your Business
-            </Link>
+            <RegisterButton text="List your business" style="w-full text-sm sm:w-auto group bg-white text-primary px-6 md:px-8 py-3 md:py-4 rounded-xl font-semibold hover:bg-neutral-100 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105  md:text-lg"/>
           </div>
 
           </div>
@@ -276,13 +273,7 @@ export default function HomePage() {
           <p className="text-sm md:text-xl lg:text-2xl mb-6 md:mb-10 text-neutral-100 max-w-3xl mx-auto leading-relaxed px-4">
             Reach more customers. Showcase your work. Grow your business.
           </p>
-          <Link 
-         
-              href="/register"
-          className="w-full sm:w-auto group bg-secondary text-white px-8 md:px-10 py-4 md:py-5 rounded-xl font-semibold hover:bg-secondary-dark transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm md:text-lg inline-flex items-center justify-center gap-3">
-            Register Your Business - It's Free!
-            <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-2 transition-transform" />
-          </Link>
+          <RegisterButton text="Register Your Business - It's Free!" style="w-full sm:w-auto group bg-secondary text-white px-8 md:px-10 py-4 md:py-5 rounded-xl font-semibold hover:bg-secondary-dark transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm md:text-lg inline-flex items-center justify-center gap-3"/>
         </div>
       </section>
     </div>

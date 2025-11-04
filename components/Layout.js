@@ -1,11 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Menu, X, Twitter, Linkedin, Mail, ArrowRight } from 'lucide-react';
+import { Search, Menu, X, Twitter, Linkedin, Mail, ArrowRight, LogOut, User } from 'lucide-react';
+import RegisterButton from "./RegisterButton"
+import { signOut, useSession } from "next-auth/react"
 import Link from 'next/link';
+
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -14,6 +18,10 @@ function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleLogout = () => {
+    signOut({ callbackUrl: "/" });
+  };
 
   return (
     <nav 
@@ -28,48 +36,66 @@ function Navbar() {
           {/* Logo */}
           <Link
             href="/" 
-            className="group flex items-center  text-2xl font-bold transition-transform duration-300 hover:scale-105"
+            className="group flex items-center text-2xl font-bold transition-transform duration-300 hover:scale-105"
           >
-            <div className="bg-blue-600 text-white mr-2 w-10 h-10 rounded-lg flex items-center justify-center group-hover:bg-blue-700 transition-colors">
+            <div className="bg-primary text-white mr-2 w-10 h-10 rounded-lg flex items-center justify-center group-hover:bg-primary-dark transition-colors">
               <Search className="w-5 h-5" />
             </div>
-<span className="text-blue-600">Find</span><span className="text-orange-500">Am</span>
+            <span className="text-primary">Find</span><span className="text-secondary">Am</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
-            <a 
+          <div className="hidden md:flex items-center gap-6">
+            <Link
               href="/search" 
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group"
+              className="text-neutral-800 hover:text-primary font-medium transition-colors relative group"
             >
               Search
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a 
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+            </Link>
+            {/* <Link
               href="/about" 
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group"
+              className="text-neutral-800 hover:text-primary font-medium transition-colors relative group"
             >
               About
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a 
-              href="/register" 
-              className="group bg-orange-500 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-orange-600 transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 flex items-center gap-2"
-            >
-              Register Business
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </a>
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+            </Link> */}
+            
+            {/* Show Dashboard link if logged in */}
+            {session && (
+              <Link
+                href="/dashboard" 
+                className="text-neutral-800 hover:text-primary font-medium transition-colors relative group flex items-center gap-2"
+              >
+                <User className="w-4 h-4" />
+                Dashboard
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+              </Link>
+            )}
+
+            <RegisterButton text="Register Business" style="bg-secondary text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-secondary-dark transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 flex items-center gap-2"/>
+            
+            {/* Logout Button - Only show if logged in */}
+            {session && (
+              <button
+                onClick={handleLogout}
+                className="group bg-neutral-100 text-neutral-800 px-5 py-2.5 rounded-lg font-semibold hover:bg-red-50 hover:text-red-600 transition-all duration-300 flex items-center gap-2 border-2 border-transparent hover:border-red-200"
+              >
+                <LogOut className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                Logout
+              </button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="md:hidden p-2 hover:bg-neutral-100 rounded-lg transition-colors"
           >
             {mobileMenuOpen ? (
-              <X className="w-6 h-6 text-gray-700" />
+              <X className="w-6 h-6 text-neutral-700" />
             ) : (
-              <Menu className="w-6 h-6 text-gray-700" />
+              <Menu className="w-6 h-6 text-neutral-700" />
             )}
           </button>
         </div>
@@ -77,28 +103,46 @@ function Navbar() {
         {/* Mobile Menu */}
         <div 
           className={`md:hidden overflow-hidden transition-all duration-300 ${
-            mobileMenuOpen ? 'max-h-64 opacity-100 mt-4' : 'max-h-0 opacity-0'
+            mobileMenuOpen ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0'
           }`}
         >
-          <div className="flex flex-col gap-3 py-4 border-t border-gray-200">
-            <a 
+          <div className="flex flex-col gap-3 py-4 border-t border-neutral-200">
+            <Link
               href="/search" 
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors py-2 px-4 hover:bg-gray-50 rounded-lg"
+              className="text-neutral-800 hover:text-primary font-medium transition-colors py-2 px-4 hover:bg-neutral-50 rounded-lg"
             >
               Search
-            </a>
-            <a 
+            </Link>
+            {/* <Link
               href="/about" 
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors py-2 px-4 hover:bg-gray-50 rounded-lg"
+              className="text-neutral-800 hover:text-primary font-medium transition-colors py-2 px-4 hover:bg-neutral-50 rounded-lg"
             >
               About
-            </a>
-            <a 
-              href="/register" 
-              className="bg-orange-500 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-orange-600 transition-all duration-300 text-center"
-            >
-              Register Business
-            </a>
+            </Link> */}
+            
+            {/* Show Dashboard link if logged in */}
+            {session && (
+              <Link
+                href="/dashboard" 
+                className="text-neutral-800 hover:text-primary font-medium transition-colors py-2 px-4 hover:bg-neutral-50 rounded-lg flex items-center gap-2"
+              >
+                <User className="w-4 h-4" />
+                Dashboard
+              </Link>
+            )}
+
+            <RegisterButton text="Register Business" style="bg-secondary text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-secondary-dark transition-all duration-300 text-center"/>
+            
+            {/* Logout Button - Only show if logged in */}
+            {session && (
+              <button
+                onClick={handleLogout}
+                className="bg-neutral-100 text-neutral-800 px-6 py-2.5 rounded-lg font-semibold hover:bg-red-50 hover:text-red-600 transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
+            )}
           </div>
         </div>
       </div>

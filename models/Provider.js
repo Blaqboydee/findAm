@@ -1,6 +1,13 @@
 import mongoose from 'mongoose'
 
 const ProviderSchema = new mongoose.Schema({
+  // NEW: Link to user account
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  
   name: {
     type: String,
     required: [true, 'Please provide a name'],
@@ -9,8 +16,6 @@ const ProviderSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, 'Please provide an email'],
-    unique: true,
-    lowercase: true,
   },
   phone: {
     type: String,
@@ -28,15 +33,13 @@ const ProviderSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide a description'],
   },
-    // NEW: Profile/Logo Image
   profileImage: {
     type: String,
-    default: null, // URL from Cloudinary
+    default: null,
   },
-  // NEW: Work Samples (2-3 images)
   workImages: {
     type: [String],
-    default: [], // Array of URLs from Cloudinary
+    default: [],
   },
   rating: {
     average: { type: Number, default: 0 },
@@ -45,6 +48,11 @@ const ProviderSchema = new mongoose.Schema({
   verified: {
     type: Boolean,
     default: false,
+  },
+  // NEW: Track if provider is active
+  isActive: {
+    type: Boolean,
+    default: true,
   },
   createdAt: {
     type: Date,
