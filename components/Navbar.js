@@ -291,7 +291,7 @@ export default function Navbar() {
             {/* Guest Mobile */}
             {isGuest && (
               <>
-                 <RegisterButton  text="Sign In"/>
+                 <RegisterButton  text="Sign In" style="block text-neutral-800 hover:text-primary hover:bg-neutral-50 font-medium transition px-3 rounded-lg" />
                 {ctaButton && (
                   <Link 
                     href={ctaButton.href}

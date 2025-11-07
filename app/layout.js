@@ -11,16 +11,22 @@ const poppins = Poppins({
 export const metadata = {
   title: 'FindAm - Find Trusted Service Providers',
   description: 'Connect with trusted service providers near you',
+  themeColor: "#1E40AF", // Your primary blue color
+  other: {
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "black-translucent"
+  }
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <meta name="theme-color" content="#1E40AF" />
+      </head>
       <body className={poppins.className}>
-      <SessionWrapper>
-        {/* <Navbar /> */}
-        {children}
-        {/* <Footer /> */}
+        <SessionWrapper>
+          {children}
         </SessionWrapper>
       </body>
     </html>
