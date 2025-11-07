@@ -1,14 +1,26 @@
 import { NextResponse } from 'next/server'
 import connectDB from '../../../lib/mongodb'
 import Provider from '../../../models/Provider'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../auth/[...nextauth]/route'
 
 export async function POST(request) {
   try {
-    // Connect to database
+    // Get session to verify user is logged in
+    const session = await getServerSession(authOptions)
+
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { success: false, error: 'You must be logged in to register a business' },
+        { status: 401 }
+      )
+    }
+
     await connectDB()
 
-    // Get form data
     const body = await request.json()
+    console.log(body);
+    
     const { 
       name, 
       email, 
@@ -16,8 +28,8 @@ export async function POST(request) {
       serviceType, 
       location, 
       description,
-      profileImage,    // NEW
-      workImages       // NEW
+      profileImage,
+      workImages
     } = body
 
     // Validate required fields
@@ -28,25 +40,26 @@ export async function POST(request) {
       )
     }
 
-    // Check if email already exists
-    const existingProvider = await Provider.findOne({ email })
+    // Check if user already has a business
+    const existingProvider = await Provider.findOne({ userId: session.user.id })
     if (existingProvider) {
       return NextResponse.json(
-        { success: false, error: 'Email already registered' },
+        { success: false, error: 'You already have a registered business' },
         { status: 400 }
       )
     }
 
-    // Create new provider
+    // Create new provider linked to user
     const provider = await Provider.create({
+      userId: session.user.id, // LINK TO USER - IMPORTANT!
       name,
       email,
       phone,
       serviceType,
       location,
       description,
-      profileImage: profileImage || null,        
-      workImages: workImages || [],              
+      profileImage: profileImage || null,
+      workImages: workImages || [],
     })
 
     return NextResponse.json(

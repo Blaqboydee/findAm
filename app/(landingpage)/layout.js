@@ -1,7 +1,8 @@
-import "./globals.css"
+import "../globals.css"
 import { Poppins } from 'next/font/google'
-import { Navbar, Footer } from '../components/Layout' // Import the client components
-import SessionWrapper from "./SessionWrapper"
+import Navbar from "../../components/Navbar"
+import { Footer } from '../../components/Layout' // Import the client components
+import SessionWrapper from "../SessionWrapper"
 
 const poppins = Poppins({ 
   subsets: ['latin'],
@@ -18,9 +19,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={poppins.className}>
       <SessionWrapper>
-        {/* <Navbar /> */}
+        <Navbar />
         {children}
-        {/* <Footer /> */}
+        <Footer />
         </SessionWrapper>
       </body>
     </html>

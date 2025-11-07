@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { Target, Star, DollarSign, CheckCircle2, User, Mail, Phone, Briefcase, MapPin, FileText, ArrowRight } from 'lucide-react'
 
 // Intersection Observer hook for animations
@@ -34,7 +35,10 @@ function useInView(threshold = 0.1) {
 }
 
 export default function RegisterPage() {
-  const [formData, setFormData] = useState({
+  const {data: session, status} = useSession()
+  const [providerExists, setProviderExists] = useState(null)
+
+    const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
@@ -57,6 +61,14 @@ export default function RegisterPage() {
   const [benefitsRef, benefitsInView] = useInView(0.2)
   const [formRef, formInView] = useInView(0.1)
   const [ctaRef, ctaInView] = useInView(0.2)
+
+
+
+
+
+
+
+
 
 
   // Handle profile image selection
@@ -90,15 +102,6 @@ export default function RegisterPage() {
     setWorkImages(newWorkImages)
     setWorkImagesPreviews(newPreviews)
   }
-
-
-
-
-
-
-
-
-
 
 
   const handleChange = (e) => {
@@ -241,7 +244,8 @@ export default function RegisterPage() {
       color: 'bg-green-500'
     },
   ]
-
+  
+ 
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Hero Section */}
