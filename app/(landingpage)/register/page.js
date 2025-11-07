@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { Target, Star, DollarSign, CheckCircle2, User, Mail, Phone, Briefcase, MapPin, FileText, ArrowRight } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Target, Star, DollarSign, CheckCircle2, User, Mail, Phone, Briefcase, MapPin, FileText, ArrowRight, AlertCircle, Loader2, Building2 } from 'lucide-react'
 
 // Intersection Observer hook for animations
 function useInView(threshold = 0.1) {
@@ -35,15 +36,17 @@ function useInView(threshold = 0.1) {
 }
 
 export default function RegisterPage() {
-  const {data: session, status} = useSession()
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [providerExists, setProviderExists] = useState(null)
+  const [checkingProvider, setCheckingProvider] = useState(true)
 
-    const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     serviceType: '',
-    location: '',
+    areas: [],
     description: '',
   })
 
@@ -54,22 +57,48 @@ export default function RegisterPage() {
   const [workImagesPreviews, setWorkImagesPreviews] = useState([])
   
   const [uploading, setUploading] = useState(false)
-
-
   const [submitted, setSubmitted] = useState(false)
   
   const [benefitsRef, benefitsInView] = useInView(0.2)
   const [formRef, formInView] = useInView(0.1)
   const [ctaRef, ctaInView] = useInView(0.2)
 
+  // Check authentication and redirect if needed
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/onboarding')
+    }
+  }, [status, router])
 
+  // Check if provider account already has a business
+  useEffect(() => {
+    async function checkExistingBusiness() {
+      if (status === 'authenticated' && session?.user?.id) {
+        // Check if user is a provider
+        if (session.user.role !== 'provider') {
+          setCheckingProvider(false)
+          return
+        }
 
+        try {
+          const response = await fetch(`/api/providers/by-user/${session.user.id}`)
+          const data = await response.json()
+          console.log(data);
+          
+          
+          if (data.success && data.data) {
+            setProviderExists(data.data)
+          }
+        } catch (error) {
+          console.error('Error checking existing business:', error)
+        } finally {
+          setCheckingProvider(false)
+        }
+      }
+    }
 
-
-
-
-
-
+    checkExistingBusiness()
+  }, [status, session])
 
   // Handle profile image selection
   const handleProfileImageChange = (e) => {
@@ -88,7 +117,7 @@ export default function RegisterPage() {
       return
     }
 
-       const newWorkImages = [...workImages, ...files]
+    const newWorkImages = [...workImages, ...files]
     const newPreviews = files.map(file => URL.createObjectURL(file))
 
     setWorkImages(newWorkImages)
@@ -103,7 +132,6 @@ export default function RegisterPage() {
     setWorkImagesPreviews(newPreviews)
   }
 
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -111,7 +139,17 @@ export default function RegisterPage() {
     })
   }
 
-    // Upload single image to Cloudinary
+  // Handle area checkbox changes
+  const handleAreaChange = (area) => {
+    setFormData(prev => {
+      const areas = prev.areas.includes(area)
+        ? prev.areas.filter(a => a !== area)
+        : [...prev.areas, area]
+      return { ...prev, areas }
+    })
+  }
+
+  // Upload single image to Cloudinary
   const uploadImage = async (file) => {
     const formData = new FormData()
     formData.append('file', file)
@@ -131,28 +169,34 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    if (formData.areas.length === 0) {
+      alert('Please select at least one area you serve')
+      return
+    }
+    
     setUploading(true)
 
-    
     try {
       let profileImageUrl = null
       let workImagesUrls = []
 
-      // Upload profile image if exists
       if (profileImage) {
         profileImageUrl = await uploadImage(profileImage)
       }
 
-      // Upload work images if exist
       if (workImages.length > 0) {
         const uploadPromises = workImages.map(img => uploadImage(img))
         workImagesUrls = await Promise.all(uploadPromises)
       }
+      
       const submissionData = {
         ...formData,
+        city: 'Ibadan',
         profileImage: profileImageUrl,
         workImages: workImagesUrls,
       }
+      
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: {
@@ -166,22 +210,9 @@ export default function RegisterPage() {
       if (result.success) {
         setSubmitted(true)
         
-        // Reset form after 3 seconds
         setTimeout(() => {
-          setSubmitted(false)
-          setFormData({
-            name: '',
-            email: '',
-            phone: '',
-            serviceType: '',
-            location: '',
-            description: '',
-          })
-          setProfileImage(null)
-          setProfileImagePreview(null)
-          setWorkImages([])
-          setWorkImagesPreviews([])
-        }, 3000)
+          router.push('/dashboard')
+        }, 2000)
       } else {
         alert(result.error || 'Registration failed. Please try again.')
       }
@@ -194,63 +225,121 @@ export default function RegisterPage() {
   }
 
   const serviceCategories = [
-    'Tailor',
-    'Plumber', 
-    'Electrician',
-    'Makeup Artist',
-    'Carpenter',
-    'Photographer',
-    'Mechanic',
-    'Cleaner',
-    'Painter',
-    'Hairdresser',
-    'Chef/Catering',
-    'Generator Repairer',
-    'AC Technician',
-    'Event Planner',
-    'Other'
+    'Tailor', 'Plumber', 'Electrician', 'Makeup Artist', 'Carpenter',
+    'Photographer', 'Mechanic', 'Cleaner', 'Painter', 'Hairdresser',
+    'Chef/Catering', 'Generator Repairer', 'AC Technician', 'Event Planner', 'Other'
   ]
 
-  const nigerianCities = [
-    'Lagos',
-    'Ibadan',
-    'Abuja',
-    'Port Harcourt',
-    'Kano',
-    'Kaduna',
-    'Enugu',
-    'Benin City',
-    'Onitsha',
-    'Ilorin'
+  const ibadanAreas = [
+    'Bodija', 'UI/Ajibode', 'Mokola', 'Dugbe', 'Challenge', 'Ologuneru',
+    'Sango', 'Ring Road', 'Adamasingba', 'Agodi', 'Jericho', 'Apata',
+    'Oluyole', 'Iwo Road', 'Bashorun', 'Eleyele', 'Idi-Ape', 'New Garage',
+    'Secretariat', 'Akobo'
   ]
 
   const benefits = [
-    { 
-      icon: Target, 
-      title: 'Reach More Customers',
-      text: 'Get discovered by people actively searching for your services',
-      color: 'bg-blue-500'
-    },
-    { 
-      icon: Star, 
-      title: 'Build Your Reputation',
-      text: 'Collect reviews and showcase your best work',
-      color: 'bg-yellow-500'
-    },
-    { 
-      icon: DollarSign, 
-      title: "It's Free",
-      text: 'No registration fees. Start getting customers today',
-      color: 'bg-green-500'
-    },
+    { icon: Target, title: 'Reach More Customers', text: 'Get discovered by people actively searching for your services', color: 'bg-blue-500' },
+    { icon: Star, title: 'Build Your Reputation', text: 'Collect reviews and showcase your best work', color: 'bg-yellow-500' },
+    { icon: DollarSign, title: "It's Free", text: 'No registration fees. Start getting customers today', color: 'bg-green-500' },
   ]
+
+  // Loading state
+  if (status === 'loading' || (status === 'authenticated' && checkingProvider)) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-16 h-16 text-primary mx-auto mb-4 animate-spin" />
+          <p className="text-neutral-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Not a provider - show error
+  if (status === 'authenticated' && session?.user?.role !== 'provider') {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-start justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center border-2 border-red-200">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="w-8 h-8 text-red-600" />
+          </div>
+          <h2 className="text-lg md:text-xl font-bold text-neutral-900 mb-3">
+            Provider Account Required
+          </h2>
+          <p className="text-sm text-neutral-600 mb-6 leading-relaxed">
+            You need a provider account to register a business. Your current account is a customer account.
+          </p>
+          <div className="space-y-3">
+            <Link
+              href="/onboarding"
+              className="block bg-secondary text-sm md:text-base text-white px-6 py-3 rounded-xl font-semibold hover:bg-secondary-dark transition shadow-lg hover:shadow-xl"
+            >
+              Create Provider Account
+            </Link>
+            <Link
+              href="/dashboard"
+              className="block bg-neutral-100 text-sm md:text-base text-neutral-900 px-6 py-3 rounded-xl font-semibold hover:bg-neutral-200 transition"
+            >
+              Go to Dashboard
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Provider already has a business
+  if (providerExists) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-start justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center border-2 border-green-200">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Building2 className="w-8 h-8 text-green-600" />
+          </div>
+          <h2 className="text-lg md:text-2xl font-bold text-neutral-900 mb-3">
+            Business Already Registered!
+          </h2>
+          <p className="text-neutral-600 mb-2 text-lg font-semibold">
+            {providerExists.name}
+          </p>
+          <p className="text-neutral-500 mb-6">
+            {providerExists.serviceType} • {providerExists.city}
+          </p>
+          <div className="bg-neutral-50 rounded-xl p-4 mb-6">
+            <div className="flex items-center justify-center gap-2 text-yellow-600 mb-2">
+              <Star className="w-5 h-5 fill-current" />
+              <span className="font-bold text-lg">
+                {providerExists.rating?.average?.toFixed(1) || '0.0'}
+              </span>
+              <span className="text-neutral-600 text-sm">
+                ({providerExists.rating?.count || 0} reviews)
+              </span>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <Link
+              href="/dashboard"
+              className="block bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-dark transition shadow-lg hover:shadow-xl"
+            >
+              Go to Dashboard
+            </Link>
+            <Link
+              href={`/provider/${providerExists._id}`}
+              className="block bg-neutral-100 text-neutral-900 px-6 py-3 rounded-xl font-semibold hover:bg-neutral-200 transition"
+            >
+              View Public Profile
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
   
- 
+  // Provider without business - show registration form
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary via-primary-dark to-secondary text-white py-16 md:py-24 overflow-hidden">
-        {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden opacity-20">
           <div className="absolute top-0 right-0 w-96 h-96 bg-primary-light rounded-full blur-3xl"></div>
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary-light rounded-full blur-3xl"></div>
@@ -261,21 +350,21 @@ export default function RegisterPage() {
             Register Your Business
           </h1>
           <p className="text-sm md:text-2xl text-neutral-100 max-w-3xl mx-auto leading-relaxed">
-            Join FindAm and connect with thousands of potential customers looking for your services
+            Join FindAm and connect with thousands of potential customers in Ibadan
           </p>
         </div>
       </section>
 
       {/* Benefits Section */}
-      <section ref={benefitsRef} className="py-8 md:py-20 bg-white">
+      <section  className="py-8 md:py-20 bg-white">
         <div className="container mx-auto px-4">
           <h2 
             className="text-xl md:text-4xl font-bold text-center mb-12 md:mb-16 text-neutral-900"
-            style={{
-              transform: benefitsInView ? 'translateY(0)' : 'translateY(30px)',
-              opacity: benefitsInView ? 1 : 0,
-              transition: 'all 0.6s ease-out'
-            }}
+            // style={{
+            //   transform: benefitsInView ? 'translateY(0)' : 'translateY(30px)',
+            //   opacity: benefitsInView ? 1 : 0,
+            //   transition: 'all 0.6s ease-out'
+            // }}
           >
             Why Join FindAm?
           </h2>
@@ -286,11 +375,11 @@ export default function RegisterPage() {
                 <div 
                   key={benefit.title}
                   className="group text-center p-8 bg-neutral-50 rounded-2xl hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-primary-light"
-                  style={{
-                    transform: benefitsInView ? 'scale(1)' : 'scale(0.9)',
-                    opacity: benefitsInView ? 1 : 0,
-                    transition: `all 0.5s ease-out ${index * 0.15}s`
-                  }}
+                  // style={{
+                  //   transform: benefitsInView ? 'scale(1)' : 'scale(0.9)',
+                  //   opacity: benefitsInView ? 1 : 0,
+                  //   transition: `all 0.5s ease-out ${index * 0.15}s`
+                  // }}
                 >
                   <div className={`${benefit.color} w-18 h-18 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     <Icon className="w-8 h-8 text-white" />
@@ -309,32 +398,23 @@ export default function RegisterPage() {
         <div className="container mx-auto px-4">
           <div 
             className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-6 md:p-10 border-2 border-primary-light"
-            style={{
-              transform: formInView ? 'translateY(0)' : 'translateY(40px)',
-              opacity: formInView ? 1 : 0,
-              transition: 'all 0.8s ease-out'
-            }}
+            // style={{
+            //   transform: formInView ? 'translateY(0)' : 'translateY(40px)',
+            //   opacity: formInView ? 1 : 0,
+            //   transition: 'all 0.8s ease-out'
+            // }}
           >
             {submitted ? (
-              // Success Message
               <div className="text-center py-12">
                 <div className="w-24 h-24 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
                   <CheckCircle2 className="w-14 h-14 text-white" />
                 </div>
                 <h3 className="text-3xl font-bold text-accent mb-3">Registration Successful!</h3>
                 <p className="text-neutral-600 mb-8 text-lg">
-                  Thank you for joining FindAm. We'll review your application and get back to you soon.
+                  Redirecting to your dashboard...
                 </p>
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-xl font-semibold hover:bg-primary-dark transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
-                >
-                  Back to Home
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
               </div>
             ) : (
-              // Registration Form
               <>
                 <h2 className="text-base md:text-3xl font-bold mb-8 text-neutral-900 text-center">
                   Create Your Profile
@@ -360,7 +440,7 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                   {/* Profile/Logo Image */}
+                  {/* Profile/Logo Image */}
                   <div>
                     <label className="block text-sm font-medium text-neutral-800 mb-2">
                       Profile Picture/Business Logo
@@ -380,9 +460,9 @@ export default function RegisterPage() {
                           onChange={handleProfileImageChange}
                           className="w-full px-4 py-3 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-neutral-900 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white file:cursor-pointer hover:file:bg-primary-dark"
                         />
-                        <p className="text-sm text-neutral-600 mt-1">
+                        {/* <p className="text-sm text-neutral-600 mt-1">
                           Recommended: Square image, at least 400x400px
-                        </p>
+                        </p> */}
                       </div>
                     </div>
                   </div>
@@ -393,7 +473,6 @@ export default function RegisterPage() {
                       Work Samples (Up to 3 images)
                     </label>
                     
-                    {/* Image Previews */}
                     {workImagesPreviews.length > 0 && (
                       <div className="grid grid-cols-3 gap-4 mb-4">
                         {workImagesPreviews.map((preview, index) => (
@@ -415,7 +494,6 @@ export default function RegisterPage() {
                       </div>
                     )}
 
-                    {/* Upload Button */}
                     {workImages.length < 3 && (
                       <input
                         type="file"
@@ -492,26 +570,35 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  {/* Location */}
+                  {/* Areas in Ibadan */}
                   <div>
-                    <label className="block text-sm font-semibold text-neutral-800 mb-2">
-                      Location <span className="text-secondary">*</span>
+                    <label className="block text-sm font-semibold text-neutral-800 mb-3">
+                      Areas You Serve in Ibadan <span className="text-secondary">*</span>
                     </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none z-10" />
-                      <select
-                        name="location"
-                        value={formData.location}
-                        onChange={handleChange}
-                        required
-                        className="w-full pl-12 pr-4 py-3.5 border-2 border-neutral-200 rounded-xl focus:outline-none focus:border-primary transition-colors text-neutral-900 bg-neutral-50 focus:bg-white appearance-none cursor-pointer"
-                      >
-                        <option value="">Select your city</option>
-                        {nigerianCities.map(city => (
-                          <option key={city} value={city}>{city}</option>
-                        ))}
-                      </select>
+                    <p className="text-sm text-neutral-600 mb-3">
+                      Select all areas where you provide your services
+                    </p>
+                    <div className="max-h-60 overflow-y-auto border-2 border-neutral-200 rounded-xl p-4 bg-neutral-50 grid grid-cols-2 gap-3">
+                      {ibadanAreas.map(area => (
+                        <label 
+                          key={area} 
+                          className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded-lg transition-colors"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={formData.areas.includes(area)}
+                            onChange={() => handleAreaChange(area)}
+                            className="w-4 h-4 text-primary border-neutral-300 rounded focus:ring-primary cursor-pointer"
+                          />
+                          <span className="text-sm text-neutral-800">{area}</span>
+                        </label>
+                      ))}
                     </div>
+                    {formData.areas.length > 0 && (
+                      <p className="text-sm text-primary mt-2 ml-1 font-medium">
+                        Selected: {formData.areas.join(', ')}
+                      </p>
+                    )}
                   </div>
 
                   {/* Description */}
@@ -562,7 +649,6 @@ export default function RegisterPage() {
         ref={ctaRef}
         className="relative py-16 md:py-20 bg-primary text-white overflow-hidden"
       >
-        {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden opacity-20">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-light rounded-full blur-3xl"></div>
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary rounded-full blur-3xl"></div>
@@ -570,11 +656,11 @@ export default function RegisterPage() {
 
         <div 
           className="relative container mx-auto px-4 text-center"
-          style={{
-            transform: ctaInView ? 'translateY(0)' : 'translateY(40px)',
-            opacity: ctaInView ? 1 : 0,
-            transition: 'all 0.8s ease-out'
-          }}
+          // style={{
+          //   transform: ctaInView ? 'translateY(0)' : 'translateY(40px)',
+          //   opacity: ctaInView ? 1 : 0,
+          //   transition: 'all 0.8s ease-out'
+          // }}
         >
           <h2 className="text-xl md:text-3xl font-bold mb-4">
             Already have customers?

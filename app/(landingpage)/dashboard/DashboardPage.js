@@ -151,7 +151,7 @@ export default function DashboardPage() {
         {/* Welcome Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+            {/* <div className={`w-16 h-12 rounded-full  flex items-center justify-center ${
               isProvider ? 'bg-secondary' : 'bg-primary'
             }`}>
               {isProvider ? (
@@ -159,9 +159,9 @@ export default function DashboardPage() {
               ) : (
                 <User className="w-6 h-6 text-white" />
               )}
-            </div>
+            </div> */}
             <div>
-              <h1 className="text-xl md:text-4xl font-bold text-neutral-900">
+              <h1 className="text-lg md:text-4xl font-bold text-neutral-900">
                 Welcome back, {session?.user?.name.split(" ")[0]}! 👋
               </h1>
               <p className="text-sm text-neutral-600">
@@ -245,13 +245,13 @@ export default function DashboardPage() {
                     >
                       View Public Profile
                     </Link>
-                    <Link
+                    {/* <Link
             
                       href={`/dashboard/edit-business`}
                       className="flex-1 bg-neutral-100 text-neutral-900 px-6 py-3 rounded-lg font-semibold hover:bg-neutral-200 transition text-center"
                     >
                       Edit Business
-                    </Link>
+                    </Link> */}
                   </div>
                 </div>
 
@@ -286,31 +286,31 @@ export default function DashboardPage() {
             ) : (
               // Provider WITHOUT Business
               <div className="bg-gradient-to-br from-secondary to-secondary-dark text-white rounded-lg shadow-md p-8 text-center">
-                <Briefcase className="w-16 h-16 mx-auto mb-4 opacity-90" />
-                <h2 className="text-3xl font-bold mb-4">
+                <Briefcase className="w-12 h-12 mx-auto mb-4 opacity-90" />
+                <h2 className="text-lg md:text-xl font-bold mb-4">
                   Complete Your Business Registration
                 </h2>
-                <p className="text-neutral-100 mb-6 max-w-xl mx-auto">
+                <p className="text-neutral-100 mb-6 max-w-xl mx-auto text-sm md:text-base">
                   You're one step away from reaching thousands of potential customers. 
                   Set up your business profile now!
                 </p>
                 <ul className="space-y-3 mb-8 max-w-md mx-auto text-left">
                   <li className="flex items-center gap-3">
-                    <span className="text-accent-light text-xl">✓</span>
-                    <span>Create a professional profile</span>
+                    <span className="text-accent-light text-sm md:text-base">✓</span>
+                    <span className='text-sm md:text-base'>Create a professional profile</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <span className="text-accent-light text-xl">✓</span>
-                    <span>Upload photos of your work</span>
+                    <span className="text-accent-light text-sm md:text-base">✓</span>
+                    <span className='text-sm md:text-base'>Upload photos of your work</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <span className="text-accent-light text-xl">✓</span>
-                    <span>Start getting customer calls today</span>
+                    <span className="text-accent-light text-sm md:text-base">✓</span>
+                    <span className='text-sm md:text-base'>Start getting customer calls today</span>
                   </li>
                 </ul>
                 <Link
                   href="/register"
-                  className="inline-block bg-white text-secondary px-8 py-4 rounded-lg font-bold hover:bg-neutral-100 transition shadow-lg text-lg"
+                  className="inline-block bg-white text-sm md:text-base text-secondary px-8 py-4 rounded-lg font-bold hover:bg-neutral-100 transition shadow-lg text-lg"
                 >
                   Register Your Business Now
                 </Link>

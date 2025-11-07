@@ -169,7 +169,6 @@ export default function ProviderProfilePage() {
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between max-w-5xl mx-auto">
               <div className="flex items-center gap-3">
-                {/* <Eye className="w-5 h-5" /> */}
                 <p className="font-medium text-sm md:text-base">
                   You're viewing your public profile
                 </p>
@@ -178,7 +177,6 @@ export default function ProviderProfilePage() {
                 href="/dashboard"
                 className="flex items-center gap-1 bg-white/20 hover:bg-white/30 px-2 py-2 rounded-lg transition-colors text-sm"
               >
-                {/* <Edit className="w-4 h-4" /> */}
                 Edit Profile
               </Link>
             </div>
@@ -186,7 +184,7 @@ export default function ProviderProfilePage() {
         </div>
       )}
 
-      {/* Hero Section - Sleeker Design */}
+      {/* Hero Section */}
       <section className="bg-white border-b border-neutral-200">
         <div className="container mx-auto px-4 py-8 md:py-12">
           <div className="max-w-5xl mx-auto">
@@ -199,7 +197,7 @@ export default function ProviderProfilePage() {
               <span className="font-medium">Back</span>
             </button>
 
-            {/* Provider Header - Horizontal Layout */}
+            {/* Provider Header */}
             <div className="flex items-start gap-6 md:gap-8">
               {/* Profile Image */}
               <div className="relative flex-shrink-0">
@@ -225,10 +223,10 @@ export default function ProviderProfilePage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div className="min-w-0 flex-1">
-                    <h1 className="text-2xl md:text-4xl font-bold text-neutral-900 mb-2">
+                    <h1 className="text-lg md:text-2xl font-bold text-neutral-900 mb-0">
                       {provider.name}
                     </h1>
-                    <p className="text-base md:text-lg text-neutral-600 font-medium mb-3">
+                    <p className="text-base md:text-lg text-neutral-600 font-medium mb-2">
                       {provider.serviceType}
                     </p>
                   </div>
@@ -237,8 +235,8 @@ export default function ProviderProfilePage() {
                 {/* Stats Row */}
                 <div className="flex flex-wrap gap-3 md:gap-4">
                   <div className="flex items-center gap-2 bg-yellow-50 px-4 py-2 rounded-xl">
-                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                    <span className="font-bold text-neutral-900">
+                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                    <span className="font-bold text-sm md:text-base text-neutral-900">
                       {provider.rating?.average?.toFixed(1) || '0.0'}
                     </span>
                     <span className="text-neutral-600 text-sm">
@@ -246,15 +244,24 @@ export default function ProviderProfilePage() {
                     </span>
                   </div>
                   
-                  <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-xl">
-                    <MapPin className="w-5 h-5 text-primary" />
-                    <span className="font-medium text-neutral-900">{provider.location}</span>
+                  {/* Display City + Areas */}
+                  <div className="flex items-center gap-2 bg-blue-50 px-4 py-1 rounded-xl">
+                    <MapPin className="w-4 h-4 text-primary" />
+                    <span className="font-medium text-neutral-900 text-sm md:text-base">
+                      {provider.city || 'Ibadan'}
+                      {provider.areas && provider.areas.length > 0 && (
+                        <span className="text-neutral-600 text-xs ml-1">
+                          ({provider.areas.slice(0, 2).join(', ')}
+                          {provider.areas.length > 2 && ` +${provider.areas.length - 2}`})
+                        </span>
+                      )}
+                    </span>
                   </div>
 
                   {provider.verified && (
                     <div className="flex items-center gap-2 bg-green-50 px-4 py-2 rounded-xl">
-                      <CheckCircle className="w-5 h-5 text-green-600" />
-                      <span className="font-semibold text-green-700">Verified</span>
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="font-semibold text-green-700 text-sm md:text-base">Verified</span>
                     </div>
                   )}
                 </div>
@@ -273,17 +280,17 @@ export default function ProviderProfilePage() {
               <div className="md:col-span-2 space-y-6">
                 {/* About Section */}
                 <div 
-                  className="bg-white rounded-2xl shadow-md p-6 md:p-8 border border-neutral-100"
+                  className="bg-white rounded-2xl shadow-md p-4 md:p-6 border border-neutral-100"
                   style={{
                     transform: contentVisible ? 'translateY(0)' : 'translateY(30px)',
                     opacity: contentVisible ? 1 : 0,
                     transition: 'all 0.6s ease-out'
                   }}
                 >
-                  <h2 className="text-xl md:text-2xl font-bold text-neutral-900 mb-4">
+                  <h2 className="text-lg md:text-xl font-bold text-neutral-900 mb-2">
                     About
                   </h2>
-                  <p className="text-neutral-700 leading-relaxed">
+                  <p className="text-neutral-700 leading-relaxed text-sm md:text-base">
                     {provider.description || 'No description available for this provider.'}
                   </p>
                 </div>
@@ -298,7 +305,7 @@ export default function ProviderProfilePage() {
                       transition: 'all 0.6s ease-out 0.05s'
                     }}
                   >
-                    <h2 className="text-xl md:text-2xl font-bold text-neutral-900 mb-6">
+                    <h2 className="text-lg md:text-xl font-bold text-neutral-900 mb-6">
                       Work Samples
                     </h2>
                     <div className="relative">
@@ -349,35 +356,51 @@ export default function ProviderProfilePage() {
                     transition: 'all 0.6s ease-out 0.1s'
                   }}
                 >
-                  <h2 className="text-xl md:text-2xl font-bold text-neutral-900 mb-6">
+                  <h2 className="text-lg md:text-xl font-bold text-neutral-900 mb-6">
                     Details
                   </h2>
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Wrench className="w-6 h-6 text-primary" />
+                      <div className="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Wrench className="w-4 h-4 text-primary" />
                       </div>
                       <div>
                         <p className="text-sm text-neutral-600 mb-0.5">Service Type</p>
-                        <p className="font-semibold text-neutral-900">{provider.serviceType}</p>
+                        <p className="font-semibold text-neutral-900 text-sm md:text-base">{provider.serviceType}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <MapPin className="w-6 h-6 text-primary" />
+                    
+                    {/* Areas Served */}
+                    <div className="flex items-start gap-4">
+                      <div className="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-4 h-4 text-primary" />
                       </div>
-                      <div>
-                        <p className="text-sm text-neutral-600 mb-0.5">Location</p>
-                        <p className="font-semibold text-neutral-900">{provider.location}</p>
+                      <div className="flex-1">
+                        <p className="text-sm text-neutral-600 mb-1">Areas Served</p>
+                        {provider.areas && provider.areas.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {provider.areas.map((area, idx) => (
+                              <span 
+                                key={idx}
+                                className="inline-block bg-blue-50 text-primary px-3 py-1 rounded-lg text-xs md:text-sm font-medium"
+                              >
+                                {area}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="font-semibold text-neutral-900">{provider.city || 'Ibadan'}</p>
+                        )}
                       </div>
                     </div>
+
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Calendar className="w-6 h-6 text-primary" />
+                      <div className="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Calendar className="w-4 h-4 text-primary" />
                       </div>
                       <div>
                         <p className="text-sm text-neutral-600 mb-0.5">Member Since</p>
-                        <p className="font-semibold text-neutral-900">
+                        <p className="font-semibold text-neutral-900 text-sm md:text-base">
                           {new Date(provider.createdAt).toLocaleDateString('en-US', {
                             month: 'long',
                             year: 'numeric'
@@ -398,7 +421,7 @@ export default function ProviderProfilePage() {
                       transition: 'all 0.6s ease-out 0.2s'
                     }}
                   >
-                    <h2 className="text-xl md:text-2xl font-bold text-neutral-900 mb-6">
+                    <h2 className="text-lg md:text-xl font-bold text-neutral-900 mb-6">
                       Customer Reviews
                     </h2>
                     <div className="text-center py-12 bg-neutral-50 rounded-xl">
@@ -409,7 +432,6 @@ export default function ProviderProfilePage() {
                           : 'No reviews yet. Be the first to leave a review!'}
                       </p>
                       
-                      {/* Review CTA - Only for non-owners */}
                       {session ? (
                         <button className="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-dark transition-all">
                           Leave a Review
@@ -417,7 +439,7 @@ export default function ProviderProfilePage() {
                       ) : (
                         <Link
                           href="/onboarding"
-                          className="inline-block bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-dark transition-all"
+                          className="inline-block bg-primary text-sm md:text-base text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-dark transition-all"
                         >
                           Sign In to Leave a Review
                         </Link>
@@ -427,7 +449,7 @@ export default function ProviderProfilePage() {
                 )}
               </div>
 
-              {/* Sidebar - Contact Card (Only for non-owners) */}
+              {/* Sidebar - Contact Card */}
               {!isOwner && (
                 <div className="md:col-span-1">
                   <div 
@@ -438,16 +460,16 @@ export default function ProviderProfilePage() {
                       transition: 'all 0.6s ease-out 0.3s'
                     }}
                   >
-                    <h3 className="text-xl font-bold text-neutral-900 mb-6">
+                    <h3 className="text-lg md:text-xl font-bold text-neutral-900 mb-6">
                       Get in Touch
                     </h3>
                     
                     <div className="space-y-3 mb-6">
                       <a 
                         href={`tel:${provider.phone}`}
-                        className="flex items-center justify-center gap-2 w-full bg-secondary text-white px-6 py-3.5 rounded-xl font-semibold hover:bg-secondary-dark transition-all duration-300 shadow-md hover:shadow-lg"
+                        className="flex items-center text-sm md:text-base justify-center gap-2 w-full bg-secondary text-white px-6 py-3.5 rounded-xl font-semibold hover:bg-secondary-dark transition-all duration-300 shadow-md hover:shadow-lg"
                       >
-                        <Phone className="w-5 h-5" />
+                        <Phone className="w-4 h-4" />
                         Call Now
                       </a>
                       
@@ -455,15 +477,15 @@ export default function ProviderProfilePage() {
                         href={`https://wa.me/${provider.phone.replace(/^0/, '234')}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full bg-accent text-white px-6 py-3.5 rounded-xl font-semibold hover:bg-green-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                        className="flex items-center justify-center text-sm md:text-base gap-2 w-full bg-accent text-white px-6 py-3.5 rounded-xl font-semibold hover:bg-green-700 transition-all duration-300 shadow-md hover:shadow-lg"
                       >
-                        <MessageCircle className="w-5 h-5" />
+                        <MessageCircle className="w-4 h-4" />
                         WhatsApp
                       </a>
 
                       <a 
                         href={`mailto:${provider.email}`}
-                        className="flex items-center justify-center gap-2 w-full bg-neutral-100 text-neutral-800 px-6 py-3.5 rounded-xl font-semibold hover:bg-neutral-200 transition-all duration-300"
+                        className="flex items-center justify-center text-sm md:text-base gap-2 w-full bg-neutral-100 text-neutral-800 px-6 py-3.5 rounded-xl font-semibold hover:bg-neutral-200 transition-all duration-300"
                       >
                         <Mail className="w-5 h-5" />
                         Send Email
@@ -504,7 +526,7 @@ export default function ProviderProfilePage() {
               Looking for other services?
             </h2>
             <p className="text-base md:text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Browse thousands of verified service providers across Nigeria
+              Browse hundreds of verified service providers across Ibadan
             </p>
             <Link
               href="/search"

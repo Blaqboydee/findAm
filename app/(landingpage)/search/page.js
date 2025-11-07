@@ -53,7 +53,7 @@ function useInView(threshold = 0.1) {
 
 export default function SearchPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [location, setLocation] = useState('')
+  const [area, setArea] = useState('') // Changed from location to area
   const [category, setCategory] = useState('')
   const [providers, setProviders] = useState([])
   const [loading, setLoading] = useState(true)
@@ -61,13 +61,52 @@ export default function SearchPage() {
   const [resultsRef, resultsInView] = useInView(0.1)
   const [ctaRef, ctaInView] = useInView(0.2)
 
-  const nigerianCities = ['Lagos', 'Ibadan', 'Abuja', 'Port Harcourt', 'Kano', 'Enugu']
-  const serviceCategories = ['Tailor', 'Plumber', 'Electrician', 'Makeup Artist', 'Carpenter', 'Photographer', 'Mechanic', 'Cleaner']
+  // Ibadan areas only
+  const ibadanAreas = [
+    'Bodija',
+    'UI/Ajibode',
+    'Mokola',
+    'Dugbe',
+    'Challenge',
+    'Ologuneru',
+    'Sango',
+    'Ring Road',
+    'Adamasingba',
+    'Agodi',
+    'Jericho',
+    'Apata',
+    'Oluyole',
+    'Iwo Road',
+    'Bashorun',
+    'Eleyele',
+    'Idi-Ape',
+    'New Garage',
+    'Secretariat',
+    'Akobo'
+  ]
+
+  const serviceCategories = [
+    'Tailor',
+    'Plumber', 
+    'Electrician',
+    'Makeup Artist',
+    'Carpenter',
+    'Photographer',
+    'Mechanic',
+    'Cleaner',
+    'Painter',
+    'Hairdresser',
+    'Chef/Catering',
+    'Generator Repairer',
+    'AC Technician',
+    'Event Planner',
+    'Other'
+  ]
 
   // Fetch providers from API
   useEffect(() => {
     fetchProviders()
-  }, [searchTerm, location, category])
+  }, [searchTerm, area, category])
 
   const fetchProviders = async () => {
     setLoading(true)
@@ -75,7 +114,7 @@ export default function SearchPage() {
       // Build query params
       const params = new URLSearchParams()
       if (searchTerm) params.append('search', searchTerm)
-      if (location) params.append('location', location)
+      if (area) params.append('area', area) // Changed from location to area
       if (category) params.append('category', category)
 
       const response = await fetch(`/api/providers?${params.toString()}`)
@@ -106,10 +145,10 @@ export default function SearchPage() {
         <div className="relative container mx-auto px-4">
           <div className="text-center mb-8">
             <h1 className="text-2xl md:text-5xl font-bold mb-3">
-              Find Service Providers
+              Find Service Providers in Ibadan
             </h1>
             <p className="text-sm md:text-lg text-neutral-100">
-              Search by service, location, or category
+              Search by service, area, or category
             </p>
           </div>
           
@@ -129,26 +168,26 @@ export default function SearchPage() {
                       placeholder="e.g., Tailor, Plumber..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full  pl-11 pr-4 py-3 border-2 border-neutral-200 rounded-xl focus:outline-none focus:border-primary transition-colors text-neutral-900 bg-neutral-50 focus:bg-white"
+                      className="w-full pl-11 pr-4 py-3 border-2 border-neutral-200 rounded-xl focus:outline-none focus:border-primary transition-colors text-neutral-900 bg-neutral-50 focus:bg-white"
                     />
                   </div>
                 </div>
 
-                {/* Location Dropdown */}
+                {/* Area Dropdown */}
                 <div className="relative">
                   <label className="block text-sm font-semibold text-neutral-800 mb-2">
-                    Location
+                    Area in Ibadan
                   </label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none z-10" />
                     <select
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
+                      value={area}
+                      onChange={(e) => setArea(e.target.value)}
                       className="w-full pl-11 pr-4 py-3 border-2 border-neutral-200 rounded-xl focus:outline-none focus:border-primary transition-colors text-neutral-900 bg-neutral-50 focus:bg-white appearance-none cursor-pointer"
                     >
-                      <option value="">All Locations</option>
-                      {nigerianCities.map(city => (
-                        <option key={city} value={city}>{city}</option>
+                      <option value="">All Areas</option>
+                      {ibadanAreas.map(area => (
+                        <option key={area} value={area}>{area}</option>
                       ))}
                     </select>
                   </div>
@@ -240,7 +279,7 @@ export default function SearchPage() {
                           <img
                             src={provider.profileImage}
                             alt={provider.name}
-                            className="w-20 h-20 rounded-full object-cover mx-auto mb-4 group-hover:scale-110 transition-transform duration-300"
+                            className="w-20 h-20 rounded-full object-cover mx-auto mb-4 border-4 border-white/20 group-hover:scale-110 transition-transform duration-300"
                           />
                         ) : (
                           <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -258,19 +297,24 @@ export default function SearchPage() {
                         <div className="flex items-center gap-2 bg-yellow-50 px-3 py-1.5 rounded-full">
                           <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                           <span className="font-bold text-neutral-900">
-                            {provider.rating?.average || 0}
+                            {provider.rating?.average?.toFixed(1) || '0.0'}
                           </span>
                           <span className="text-neutral-600 text-sm">
                             ({provider.rating?.count || 0})
                           </span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-neutral-600 text-sm">
-                          <MapPin className="w-4 h-4" />
-                          <span>{provider.location}</span>
+                        
+                        {/* Display areas served */}
+                        <div className="flex items-start gap-1.5 text-neutral-600 text-xs">
+                          <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                          <span className="line-clamp-2">
+                            {provider.areas?.slice(0, 2).join(', ')}
+                            {provider.areas?.length > 2 && ` +${provider.areas.length - 2}`}
+                          </span>
                         </div>
                       </div>
 
-                      <p className="text-neutral-700 mb-6 text-sm leading-relaxed line-clamp-2">
+                      <p className="text-neutral-700 mb-6 text-sm leading-relaxed line-clamp-3">
                         {provider.description}
                       </p>
 
@@ -316,7 +360,7 @@ export default function SearchPage() {
               <button
                 onClick={() => {
                   setSearchTerm('')
-                  setLocation('')
+                  setArea('')
                   setCategory('')
                 }}
                 className="bg-secondary text-white px-8 py-3 rounded-xl font-semibold hover:bg-secondary-dark transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"

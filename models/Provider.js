@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 const ProviderSchema = new mongoose.Schema({
-  // NEW: Link to user account
+  // Link to user account
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -25,10 +25,26 @@ const ProviderSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide a service type'],
   },
-  location: {
+  
+  // NEW: City field (for future expansion)
+  city: {
     type: String,
-    required: [true, 'Please provide a location'],
+    required: [true, 'Please provide a city'],
+    default: 'Ibadan',
   },
+  
+  // NEW: Areas array (replaces single location)
+  areas: {
+    type: [String],
+    required: [true, 'Please provide at least one area'],
+    validate: {
+      validator: function(v) {
+        return v && v.length > 0;
+      },
+      message: 'Must serve at least one area'
+    }
+  },
+  
   description: {
     type: String,
     required: [true, 'Please provide a description'],
@@ -49,7 +65,6 @@ const ProviderSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  // NEW: Track if provider is active
   isActive: {
     type: Boolean,
     default: true,
@@ -59,5 +74,8 @@ const ProviderSchema = new mongoose.Schema({
     default: Date.now,
   },
 })
+
+// Index for efficient queries
+ProviderSchema.index({ city: 1, areas: 1, serviceType: 1 })
 
 export default mongoose.models.Provider || mongoose.model('Provider', ProviderSchema)

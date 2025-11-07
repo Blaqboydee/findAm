@@ -26,16 +26,17 @@ export async function POST(request) {
       email, 
       phone, 
       serviceType, 
-      location, 
+      city, // Now receives "Ibadan"
+      areas, // Now receives array: ["Bodija", "UI", ...]
       description,
       profileImage,
       workImages
     } = body
 
     // Validate required fields
-    if (!name || !email || !phone || !serviceType || !location || !description) {
+    if (!name || !email || !phone || !serviceType || !city || !areas || areas.length === 0 || !description) {
       return NextResponse.json(
-        { success: false, error: 'All fields are required' },
+        { success: false, error: 'All fields are required. Please select at least one area.' },
         { status: 400 }
       )
     }
@@ -56,7 +57,8 @@ export async function POST(request) {
       email,
       phone,
       serviceType,
-      location,
+      city, // "Ibadan"
+      areas, // ["Bodija", "UI", "Challenge"]
       description,
       profileImage: profileImage || null,
       workImages: workImages || [],

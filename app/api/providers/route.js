@@ -6,15 +6,18 @@ export async function GET(request) {
   try {
     await connectDB()
 
-    // Get query parameters
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') || ''
-    const location = searchParams.get('location') || ''
+    const area = searchParams.get('area') || '' // Changed from location
     const category = searchParams.get('category') || ''
 
     // Build query
-    let query = {}
+    let query = { 
+      isActive: true,
+      city: 'Ibadan' // Always filter by Ibadan for MVP
+    }
 
+    // Search by name or service type
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -22,23 +25,28 @@ export async function GET(request) {
       ]
     }
 
-    if (location) {
-      query.location = location
+    // Filter by area (checks if area is in the areas array)
+    if (area) {
+      query.areas = { $in: [area] }
     }
 
+    // Filter by category/service type
     if (category) {
       query.serviceType = category
     }
 
-    // Get providers
-    const providers = await Provider.find(query).sort({ createdAt: -1 })
+    const providers = await Provider.find(query)
+      .select('-userId') // Don't expose userId
+      .sort({ createdAt: -1 })
+      .limit(100)
 
-    return NextResponse.json(
-      { success: true, data: providers },
-      { status: 200 }
-    )
+    return NextResponse.json({
+      success: true,
+      data: providers,
+      count: providers.length
+    })
   } catch (error) {
-    console.error('Fetch providers error:', error)
+    console.error('Error fetching providers:', error)
     return NextResponse.json(
       { success: false, error: 'Failed to fetch providers' },
       { status: 500 }
