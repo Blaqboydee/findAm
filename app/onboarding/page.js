@@ -50,7 +50,7 @@ export default function OnboardingPage() {
 
   const handleSkipAuth = () => {
     // For users who want to browse without account
-    window.location.href = '/search';
+    window.location.href = '/home';
   };
 
     const handleTouchStart = (e) => {
@@ -105,7 +105,7 @@ export default function OnboardingPage() {
           if (userType === 'provider') {
             window.location.href = '/register'; // Provider profile setup
           } else {
-            window.location.href = '/search'; // User browsing
+            window.location.href = '/home'; // User browsing
           }
         }
       } else {
