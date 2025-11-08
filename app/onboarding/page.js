@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, ArrowRight, Users, Briefcase, CheckCircle2, Sparkles } from 'lucide-react';
+import { Search, ArrowRight, Users, Briefcase, CheckCircle2, Sparkles, Eye, EyeOff } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 
 export default function OnboardingPage() {
@@ -12,7 +12,7 @@ export default function OnboardingPage() {
   const [activeCard, setActiveCard] = useState(0); // 0 = user, 1 = provider
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
-
+  const [showPassword, setShowPassword] = useState(false);
 
     const cards = [
     {
@@ -448,15 +448,30 @@ export default function OnboardingPage() {
                 required
                 className="w-full px-4 py-3 border-2 border-neutral-200 rounded-xl focus:outline-none focus:border-primary transition-colors text-neutral-900 bg-neutral-50 focus:bg-white text-base"
               />
-              <input
-                type="password"
-                placeholder="Password (min. 6 characters)"
-                value={authForm.password}
-                onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })}
-                required
-                minLength={6}
-                className="w-full px-4 py-3 border-2 border-neutral-200 rounded-xl focus:outline-none focus:border-primary transition-colors text-neutral-900 bg-neutral-50 focus:bg-white text-base"
-              />
+             
+
+              <div className="relative">
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="Password (min. 6 characters)"
+    value={authForm.password}
+    onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })}
+    required
+    minLength={6}
+    className="w-full px-4 py-3 pr-12 border-2 border-neutral-200 rounded-xl focus:outline-none focus:border-primary transition-colors text-neutral-900 bg-neutral-50 focus:bg-white text-base"
+  />
+  <button
+    type="button"
+    onClick={() => setShowPassword(!showPassword)}
+    className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 transition-colors"
+  >
+    {showPassword ? (
+      <EyeOff className="w-5 h-5" />
+    ) : (
+      <Eye className="w-5 h-5" />
+    )}
+  </button>
+</div>
 
               <button
                 type="submit"

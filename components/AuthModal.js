@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { X, Mail, Lock, Loader2, CheckCircle2, AlertCircle, LogIn } from "lucide-react";
+import { X, Mail, Lock, Loader2, CheckCircle2, AlertCircle, LogIn, Eye, EyeOff  } from "lucide-react";
 import Portal from "./Portal";
 
 export default function AuthModal({ onClose }) {
@@ -11,6 +11,8 @@ export default function AuthModal({ onClose }) {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [messageType, setMessageType] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  
 
   const router = useRouter();
   useEffect(() => {
@@ -111,7 +113,7 @@ async function handleSubmit(e) {
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -119,8 +121,39 @@ async function handleSubmit(e) {
                   required
                   minLength={6}
                 />
+                  <button
+    type="button"
+    onClick={() => setShowPassword(!showPassword)}
+    className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 transition-colors"
+  >
+    {showPassword ? (
+      <EyeOff className="w-5 h-5" />
+    ) : (
+      <Eye className="w-5 h-5" />
+    )}
+  </button>
               </div>
             </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             {/* Message Display */}
             {message && (
