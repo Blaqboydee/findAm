@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Search, ArrowRight, Users, Briefcase, CheckCircle2, Sparkles, Eye, EyeOff } from 'lucide-react';
-
+import { signIn } from 'next-auth/react';
 export default function OnboardingPage() {
   const [step, setStep] = useState(0); 
   const [userType, setUserType] = useState(null); 
@@ -68,15 +68,14 @@ export default function OnboardingPage() {
       const data = await res.json();
 
       if (data.success) {
-        // Auto sign in after registration
-        const signInRes = await fetch('/api/auth/signin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: authForm.email,
-            password: authForm.password,
-          }),
-        });
+    
+        console.log(data);
+         const signInRes = await signIn("credentials", {
+              redirect: false,
+              email: authForm.email,
+              password: authForm.password,
+            });
+       
 
         if (signInRes.ok) {
           // Redirect based on user type

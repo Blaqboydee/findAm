@@ -12,6 +12,8 @@ export async function POST(req) {
   try {
     await dbConnect();
     const { email, password } = await req.json();
+    console.log("Login attempt:", email);
+    
     if (!email || !password) return NextResponse.json({ success: false, message: "Missing fields" }, { status: 400 });
 
     const user = await User.findOne({ email }).lean();
