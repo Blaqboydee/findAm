@@ -11,7 +11,6 @@ const poppins = Poppins({
 export const metadata = {
   title: 'FindAm - Find Trusted Service Providers',
   description: 'Connect with trusted service providers near you',
-  themeColor: "#1E40AF", // Your primary blue color
   other: {
     "apple-mobile-web-app-capable": "yes",
     "apple-mobile-web-app-status-bar-style": "black-translucent"
