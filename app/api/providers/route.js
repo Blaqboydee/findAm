@@ -7,6 +7,8 @@ export async function GET(request) {
     await connectDB()
 
     const { searchParams } = new URL(request.url)
+    console.log(searchParams);
+    
     const search = searchParams.get('search') || ''
     const area = searchParams.get('area') || '' // Changed from location
     const category = searchParams.get('category') || ''
@@ -35,10 +37,16 @@ export async function GET(request) {
       query.serviceType = category
     }
 
+    console.log(query);
+    
+
     const providers = await Provider.find(query)
       .select('-userId') // Don't expose userId
       .sort({ createdAt: -1 })
       .limit(100)
+
+      // console.log(providers);
+      
 
     return NextResponse.json({
       success: true,

@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, ArrowRight, CheckCircle2, Scissors, Wrench, Zap, Palette, Hammer, Camera, Car, Home, Users, Star, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react'
+import { useSession } from 'next-auth/react';
+
 
 import RegisterButton from '../../../components/RegisterButton';
 
@@ -63,14 +64,14 @@ export default function HomePage() {
   }, []);
 
   const categories = [
-    { icon: Scissors, name: 'Tailors', color: 'bg-pink-500', hoverColor: 'hover:bg-pink-600' },
-    { icon: Wrench, name: 'Plumbers', color: 'bg-blue-500', hoverColor: 'hover:bg-blue-600' },
-    { icon: Zap, name: 'Electricians', color: 'bg-yellow-500', hoverColor: 'hover:bg-yellow-600' },
-    { icon: Palette, name: 'Makeup Artists', color: 'bg-rose-500', hoverColor: 'hover:bg-rose-600' },
-    { icon: Hammer, name: 'Carpenters', color: 'bg-amber-600', hoverColor: 'hover:bg-amber-700' },
-    { icon: Camera, name: 'Photographers', color: 'bg-purple-500', hoverColor: 'hover:bg-purple-600' },
-    { icon: Car, name: 'Mechanics', color: 'bg-green-500', hoverColor: 'hover:bg-green-600' },
-    { icon: Home, name: 'Cleaners', color: 'bg-cyan-500', hoverColor: 'hover:bg-cyan-600' },
+    { icon: Scissors, name: 'Tailor', color: 'bg-pink-500', hoverColor: 'hover:bg-pink-600' },
+    { icon: Wrench, name: 'Plumber', color: 'bg-blue-500', hoverColor: 'hover:bg-blue-600' },
+    { icon: Zap, name: 'Electrician', color: 'bg-yellow-500', hoverColor: 'hover:bg-yellow-600' },
+    { icon: Palette, name: 'Makeup Artist', color: 'bg-rose-500', hoverColor: 'hover:bg-rose-600' },
+    { icon: Hammer, name: 'Carpenter', color: 'bg-amber-600', hoverColor: 'hover:bg-amber-700' },
+    { icon: Camera, name: 'Photographer', color: 'bg-purple-500', hoverColor: 'hover:bg-purple-600' },
+    { icon: Car, name: 'Mechanic', color: 'bg-green-500', hoverColor: 'hover:bg-green-600' },
+    { icon: Home, name: 'Cleaner', color: 'bg-cyan-500', hoverColor: 'hover:bg-cyan-600' },
   ];
 
   const steps = [

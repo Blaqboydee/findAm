@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { Search, MapPin, Filter, Star, Phone, Eye, Scissors, Wrench, Zap, Palette, Hammer, Camera, Car, Home, Paintbrush, Wind, ChefHat, Settings, Snowflake, PartyPopper } from 'lucide-react'
-
+import { Search, MapPin, Filter, Star, Phone, Eye, Scissors, Wrench, Zap, Palette, Hammer, Camera, Car, Home, Paintbrush, Wind, ChefHat, Settings, Snowflake, PartyPopper, CheckCircle } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 // Icon mapping for services
 const serviceIcons = {
   'Tailor': Scissors,
@@ -52,12 +52,15 @@ function useInView(threshold = 0.1) {
 }
 
 export default function SearchPage() {
+  const searchParams = useSearchParams()
+  const categoryFromUrl = searchParams.get('category')
+  
+  // Initialize state with URL params
   const [searchTerm, setSearchTerm] = useState('')
-  const [area, setArea] = useState('') // Changed from location to area
-  const [category, setCategory] = useState('')
+  const [area, setArea] = useState('')
+  const [category, setCategory] = useState(categoryFromUrl || '')
   const [providers, setProviders] = useState([])
   const [loading, setLoading] = useState(true)
-
   const [resultsRef, resultsInView] = useInView(0.1)
   const [ctaRef, ctaInView] = useInView(0.2)
 
@@ -105,6 +108,7 @@ export default function SearchPage() {
 
   // Fetch providers from API
   useEffect(() => {
+    console.log('Fetching with filters:', { searchTerm, area, category });
     fetchProviders()
   }, [searchTerm, area, category])
 
@@ -114,11 +118,16 @@ export default function SearchPage() {
       // Build query params
       const params = new URLSearchParams()
       if (searchTerm) params.append('search', searchTerm)
-      if (area) params.append('area', area) // Changed from location to area
+      if (area) params.append('area', area)
       if (category) params.append('category', category)
 
-      const response = await fetch(`/api/providers?${params.toString()}`)
+      const url = `/api/providers?${params.toString()}`
+      console.log('Fetching from:', url);
+      
+      const response = await fetch(url)
       const data = await response.json()
+
+      console.log('API Response:', data);
 
       if (data.success) {
         setProviders(data.data)
@@ -275,17 +284,28 @@ export default function SearchPage() {
                       <div className="absolute bottom-0 left-0 w-32 h-32 bg-secondary rounded-full blur-3xl opacity-20"></div>
                       
                       <div className="relative">
-                        {provider.profileImage ? (
-                          <img
-                            src={provider.profileImage}
-                            alt={provider.name}
-                            className="w-20 h-20 rounded-full object-cover mx-auto mb-4 border-4 border-white/20 group-hover:scale-110 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                            <ServiceIcon className="w-10 h-10 text-white" />
-                          </div>
-                        )}
+                        {/* Profile Image with Verification Badge */}
+                        <div className="relative inline-block">
+                          {provider.profileImage ? (
+                            <img
+                              src={provider.profileImage}
+                              alt={provider.name}
+                              className="w-20 h-20 rounded-full object-cover mx-auto mb-4 border-4 border-white/20 group-hover:scale-110 transition-transform duration-300"
+                            />
+                          ) : (
+                            <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                              <ServiceIcon className="w-10 h-10 text-white" />
+                            </div>
+                          )}
+                          
+                          {/* Verification Badge */}
+                          {provider.verified && (
+                            <div className="absolute -bottom-1 -right-1 bg-accent rounded-full p-1 shadow-lg border-2 border-white">
+                              <CheckCircle className="w-5 h-5 text-white" />
+                            </div>
+                          )}
+                        </div>
+                        
                         <h3 className="text-xl md:text-2xl font-bold text-white mb-1">{provider.name}</h3>
                         <p className="text-neutral-100 font-medium">{provider.serviceType}</p>
                       </div>
@@ -354,7 +374,7 @@ export default function SearchPage() {
                 <Search className="w-12 h-12 text-neutral-400" />
               </div>
               <h3 className="text-2xl md:text-3xl font-bold text-neutral-900 mb-3">No providers found</h3>
-              <p className="text-neutral-600 mb-8 text-lg max-w-md mx-auto">
+              <p className="text-neutral-600 mb-8 text-sm md:text-base max-w-md mx-auto">
                 Try adjusting your search filters or browse all providers
               </p>
               <button
