@@ -7,19 +7,16 @@ export async function GET(request) {
     await connectDB()
 
     const { searchParams } = new URL(request.url)
-    console.log(searchParams);
-    
     const search = searchParams.get('search') || ''
-    const area = searchParams.get('area') || '' // Changed from location
+    const area = searchParams.get('area') || ''
     const category = searchParams.get('category') || ''
+    const minRating = searchParams.get('minRating') || ''
 
-    // Build query
     let query = { 
       isActive: true,
-      city: 'Ibadan' // Always filter by Ibadan for MVP
+      city: 'Ibadan'
     }
 
-    // Search by name or service type
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -27,26 +24,23 @@ export async function GET(request) {
       ]
     }
 
-    // Filter by area (checks if area is in the areas array)
     if (area) {
       query.areas = { $in: [area] }
     }
 
-    // Filter by category/service type
     if (category) {
       query.serviceType = category
     }
 
-    console.log(query);
-    
+    // NEW: Filter by minimum rating
+    if (minRating) {
+      query['rating.average'] = { $gte: parseFloat(minRating) }
+    }
 
     const providers = await Provider.find(query)
-      .select('-userId') // Don't expose userId
+      .select('-userId')
       .sort({ createdAt: -1 })
       .limit(100)
-
-      // console.log(providers);
-      
 
     return NextResponse.json({
       success: true,

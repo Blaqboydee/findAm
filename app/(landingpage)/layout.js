@@ -3,6 +3,7 @@ import { Poppins } from 'next/font/google'
 import Navbar from "../../components/Navbar"
 import { Footer } from '../../components/Layout' // Import the client components
 import SessionWrapper from "../SessionWrapper"
+import { Toaster } from 'sonner'
 
 const poppins = Poppins({ 
   subsets: ['latin'],
@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
       <SessionWrapper>
         <Navbar />
         {children}
+         <Toaster position="top-right" richColors />
         <Footer />
         </SessionWrapper>
       </body>
